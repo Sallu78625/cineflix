@@ -1,0 +1,88 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Form App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(() => {
+        // Function to submit the form via AJAX
+        $('#myForm').submit((event) => {
+          event.preventDefault(); // Prevent form submission
+
+          // Get form data
+          const formData = $('#myForm').serialize();
+
+          // Send AJAX request
+          $.ajax({
+            type: 'POST',
+            url: '/submit',
+            data: formData,
+            success: () => {
+              // Clear form fields
+              $('#name').val('');
+              $('#email').val('');
+              $('#phone').val('');
+
+              // Fetch updated user data and update the table
+              fetchUsers();
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
+        });
+
+        // Function to fetch and update user data in the table
+        function fetchUsers() {
+          $.ajax({
+            type: 'GET',
+            url: '/users',
+            success: (users) => {
+              const table = $('#userTable');
+              table.empty();
+
+              // Append table header
+              const header = $('<tr>');
+              header.append('<th>Name</th>');
+              header.append('<th>Email</th>');
+              header.append('<th>Phone</th>');
+              table.append(header);
+
+              // Append user data to the table
+              users.forEach((user) => {
+                const row = $('<tr>');
+                row.append(`<td>${user.name}</td>`);
+                row.append(`<td>${user.email}</td>`);
+                row.append(`<td>${user.phone}</td>`);
+                table.append(row);
+              });
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
+        }
+
+        // Initial fetching of user data and table update
+        fetchUsers();
+      });
+    </script>
+  </head>
+  <body>
+    <form id="myForm">
+      <label for="name">Name:</label>
+      <input type="text" name="name" id="name" required><br>
+
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" required><br>
+
+      <label for="phone">Phone:</label>
+      <input type="tel" name="phone" id="phone" required><br>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <table id="userTable" border="1"></table>
+  </body>
+</html>
